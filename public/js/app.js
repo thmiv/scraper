@@ -1,108 +1,5 @@
-// Get references to page elements
-var $exampleText = $("#example-text");
-var $exampleDescription = $("#example-description");
-var $submitBtn = $("#submit");
-var $exampleList = $("#example-list");
 
-// The API object contains methods for each kind of request we'll make
-var API = {
-  saveExample: function(example) {
-    return $.ajax({
-      headers: {
-        "Content-Type": "application/json"
-      },
-      type: "POST",
-      url: "api/examples",
-      data: JSON.stringify(example)
-    });
-  },
-  getExamples: function() {
-    return $.ajax({
-      url: "api/examples",
-      type: "GET"
-    });
-  },
-  deleteExample: function(id) {
-    return $.ajax({
-      url: "api/examples/" + id,
-      type: "DELETE"
-    });
-  }
-};
-
-// refreshExamples gets new examples from the db and repopulates the list
-var refreshExamples = function() {
-  API.getExamples().then(function(data) {
-    var $examples = data.map(function(example) {
-      var $a = $("<a>")
-        .text(example.text)
-        .attr("href", "/example/" + example.id);
-
-      var $li = $("<li>")
-        .attr({
-          class: "list-group-item",
-          "data-id": example.id
-        })
-        .append($a);
-
-      var $button = $("<button>")
-        .addClass("btn btn-danger float-right delete")
-        .text("ｘ");
-
-      $li.append($button);
-
-      return $li;
-    });
-
-    $exampleList.empty();
-    $exampleList.append($examples);
-  });
-};
-
-// handleFormSubmit is called whenever we submit a new example
-// Save the new example to the db and refresh the list
-var handleFormSubmit = function(event) {
-  event.preventDefault();
-
-  var example = {
-    text: $exampleText.val().trim(),
-    description: $exampleDescription.val().trim()
-  };
-
-  if (!(example.text && example.description)) {
-    alert("You must enter an example text and description!");
-    return;
-  }
-
-  API.saveExample(example).then(function() {
-    refreshExamples();
-  });
-
-  $exampleText.val("");
-  $exampleDescription.val("");
-};
-
-// handleDeleteBtnClick is called when an example's delete button is clicked
-// Remove the example from the db and refresh the list
-var handleDeleteBtnClick = function() {
-  var idToDelete = $(this)
-    .parent()
-    .attr("data-id");
-
-  API.deleteExample(idToDelete).then(function() {
-    refreshExamples();
-  });
-};
-
-// Add event listeners to the submit and delete buttons
-$submitBtn.on("click", handleFormSubmit);
-$exampleList.on("click", ".delete", handleDeleteBtnClick);
-
-// **************************************************************************************************
-// MongoScraper index.js
-// **************************************************************************************************
-
-/* global bootbox ----
+/* global bootbox ---- */
 $(document).ready(function() {
   // Setting a reference to the article-container div where all the dynamic content will go
   // Adding event listeners to any dynamically generated "save article"
@@ -114,7 +11,8 @@ $(document).ready(function() {
 
   function initPage() {
     // Run an AJAX request for any unsaved headlines
-    $.get("/api/headlines?saved=false").then(function(data) {
+    //$.get("/api/headlines?saved=false").then(function(data) {
+      $.get("/all").then(function(data) {
       articleContainer.empty();
       // If we have headlines, render them to the page
       if (data && data.length) {
@@ -148,8 +46,8 @@ $(document).ready(function() {
     var cardHeader = $("<div class='card-header'>").append(
       $("<h3>").append(
         $("<a class='article-link' target='_blank' rel='noopener noreferrer'>")
-          .attr("href", article.url)
-          .text(article.headline),
+          .attr("href", article.link)
+          .text(article.title),
         $("<a class='btn btn-success save'>Save Article</a>")
       )
     );
@@ -217,7 +115,7 @@ $(document).ready(function() {
 
   function handleArticleScrape() {
     // This function handles the user clicking any "scrape new article" buttons
-    $.get("/api/fetch").then(function(data) {
+    $.get("/scrape").then(function(data) {
       // If we are able to successfully scrape the NYTIMES and compare the articles to those
       // already in our collection, re render the articles on the page
       // and let the user know how many unique articles we were able to save
@@ -233,4 +131,3 @@ $(document).ready(function() {
     });
   }
 });
-----*/
