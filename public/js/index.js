@@ -1,5 +1,4 @@
-
-/* global bootbox ---- */
+// js for index.handlebars
 $(document).ready(function() {
   // Setting a reference to the article-container div where all the dynamic content will go
   // Adding event listeners to any dynamically generated "save article"
@@ -11,8 +10,7 @@ $(document).ready(function() {
 
   function initPage() {
     // Run an AJAX request for any unsaved headlines
-    //$.get("/api/headlines?saved=false").then(function(data) {
-      $.get("/all").then(function(data) {
+    $.get("/articles?saved=false").then(function(data) {
       articleContainer.empty();
       // If we have headlines, render them to the page
       if (data && data.length) {
@@ -102,7 +100,7 @@ $(document).ready(function() {
     // Using a patch method to be semantic since this is an update to an existing record in our collection
     $.ajax({
       method: "PUT",
-      url: "/api/headlines/" + articleToSave._id,
+      url: "/save/" + articleToSave._id,
       data: articleToSave
     }).then(function(data) {
       // If the data was saved successfully
@@ -116,16 +114,12 @@ $(document).ready(function() {
   function handleArticleScrape() {
     // This function handles the user clicking any "scrape new article" buttons
     $.get("/scrape").then(function(data) {
-      // If we are able to successfully scrape the NYTIMES and compare the articles to those
-      // already in our collection, re render the articles on the page
-      // and let the user know how many unique articles we were able to save
       initPage();
-      bootbox.alert($("<h3 class='text-center m-top-80'>").text(data.message));
     });
   }
 
   function handleArticleClear() {
-    $.get("api/clear").then(function() {
+    $.get("/api/clear").then(function() {
       articleContainer.empty();
       initPage();
     });
